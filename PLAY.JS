@@ -1,26 +1,7 @@
-// const arr = 'konga,jumia,aliexpress,kara,ebay,slot'
-// // console.log(typeof arr)
+const shuffle = require('./server/shuffleArray')
 
-// if (typeof arr === 'string') {
-// 	console.log('true')
-// } else {
-// 	console.log('false')
-// }
+const data = ['a', 'b', '1', '2', '5', '8', 'f', 'g']
 
-const defaultUserRequest = {
-	item: 'infinix hot 8',
-	urls: ['konga', 'jumia', 'aliExpress', 'kara', 'ebay', 'slot'],
-}
+const sh = shuffle(data)
 
-// const a = defaultUserRequest.urls.filter(
-// 	url => url !== 'jumia' && url !== 'kara' && url !== 'ebay' && url !== 'slot'
-// )
-
-const a = defaultUserRequest.urls.filter(
-	url => url !== ('jumia' && 'kara' && 'ebay' && 'slot')
-)
-
-console.log(a)
-
-const b = 'jumia'
-console.log(b.split('-')[0])
+console.log(sh)

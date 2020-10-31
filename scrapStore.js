@@ -1,6 +1,7 @@
 const cheerio = require('cheerio')
 const uuidv4 = require('uuid').v4
-const { getActualPrice } = require('./utils/formatPrice')
+const { getActualPrice } = require('./server/formatPrice')
+const fs = require('fs')
 
 const scrapJumia = html => {
 	const $ = cheerio.load(html)
@@ -232,6 +233,25 @@ const scrapEbay = html => {
 	// console.log(EbayProducts)
 	return EbayProducts
 }
+//  "id": "96",
+//          "name": "infinix note 8",
+
+const scrapMetadata = html => {
+	fs.writeFileSync('./test.html', html)
+	const $ = cheerio.load(html)
+	const description = $('.markup.-mhm.-pvl.-oxa.-sc').text()
+	const stars = $('.stars._s._al').text()
+	const details = $('.-plxs.-fs14._more').text()
+	const name = $('.-fs20.-pts.-pbxs').text()
+	const brand = $('.-fs14.-pvxs > a').text()
+	return {
+		id: uuidv4(),
+		name,
+		description,
+		rating: { stars, details },
+		brand,
+	}
+}
 
 module.exports = {
 	scrapJumia,
@@ -239,4 +259,5 @@ module.exports = {
 	scrapEbay,
 	scrapSlot,
 	scrapKara,
+	scrapMetadata,
 }
