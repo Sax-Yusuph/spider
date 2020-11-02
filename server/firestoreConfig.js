@@ -8,7 +8,7 @@ const db = new Firestore({
 	timestampsInSnapshots: true,
 })
 
-const priceRef = db.collection(PRICE_COLLECTION).doc('priceRate')
-const productRef = db.collection(PRODUCT_COLLECTION)
+exports.priceRef = db.collection(PRICE_COLLECTION).doc('priceRate')
+exports.productRef = db.collection(PRODUCT_COLLECTION)
 
-module.exports = { priceRef, productRef }
+// module.exports = { priceRef, productRef }

@@ -1,4 +1,4 @@
-module.exports = function isEmpty(obj) {
+exports.isEmpty = obj => {
 	for (var prop in obj) {
 		if (obj.hasOwnProperty(prop)) return false
 	}
