@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
 })
 const defaultUserRequest = {
 	item: 'infinix hot 8',
-	urls: ['Konga', 'Jumia', 'AliExpress', 'Kara', 'Ebay', 'Slot'],
+	urls: ['konga', 'jumia', 'aliexpress', 'kara', 'ebay', 'slot'],
 }
 
 app.get('/getstore', (req, res) => {
@@ -25,7 +25,10 @@ app.get('/getstore', (req, res) => {
 
 			res.json(formatted_results)
 		})
-		.catch(e => console.log(e.message))
+		.catch(e => {
+			console.log(e.message + '---server')
+			return e.message
+		})
 })
 
 const PORT = 4000

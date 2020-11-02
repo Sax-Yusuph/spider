@@ -1,16 +1,25 @@
 const axios = require('axios')
+const moment = require('moment')
 const { scrapMetadata } = require('./scrapStore')
-const format_res = require('./server/format_res')
-const fetchData = require('./server/get_store')
-const isEmpty = require('./server/isEmpty')
-const shuffle = require('./server/shuffleArray')
+const {
+	getHigestPrice,
+	getLowestPrice,
+	getAveragePrice,
+} = require('./server/formatPrice')
+const { format_res } = require('./server/format_res')
+const { fetchData } = require('./server/get_store')
+const { isEmpty } = require('./server/isEmpty')
+const { shuffle } = require('./server/shuffleArray')
 
-const DEFAULT_STORES = ['konga', 'jumia', 'aliexpress', 'kara', 'ebay', 'slot']
-
-// const defaultUserRequest = {
-// 	item: 'infinix hot 8',
-// 	urls: ['konga', 'jumia', 'aliExpress', 'kara', 'ebay', 'slot'],
-// }
+const DEFAULT_STORES = [
+	'konga',
+	'jumia',
+	'aliexpress',
+	'kara',
+	'ebay',
+	'slot',
+	'femtech',
+]
 
 exports.crawler = (req, res) => {
 	const { item, stores } = req.query
@@ -26,28 +35,39 @@ exports.crawler = (req, res) => {
 
 	// format the urls to have an actual http url
 	const formattedURLs = format_res({ item, stores: _stores })
+
 	Promise.all([...formattedURLs.urls.map(fetchData)])
 		.then(results => {
 			const trim = results.flat().filter(res => res.price !== '')
-			if (trim) {
-				getmeta(trim).then(metadata => {
-					const crawledRes = {
-						...metadata,
-						searchQuery: req.query,
-						items: shuffle(trim),
-					}
-					res.json(crawledRes)
-				})
-			} else {
-				res.status(500).json({ error: 'something happened' })
-			}
+			res.json(trim)
+			// if (trim) {
+			// 	console.log(trim)
+			// 	getmeta(trim).then(metadata => {
+			// 		// const priceStats = getPricestats(trim)
+			// 		const crawledRes = {
+			// 			...metadata,
+			// 			// priceStats,
+			// 			searchQuery: {
+			// 				...req.query,
+			// 				createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
+			// 			},
+			// 			items: shuffle(trim),
+			// 		}
+			// 		res.json(crawledRes)
+			// 	})
+			// } else {
+			// 	res.status(500).json({ error: 'something happened' })
+			// }
 		})
-		.catch(e => console.log(e.message))
+		.catch(e => {
+			console.log(e.message + ' ---formattedURLs')
+			return e.message
+		})
 }
 
 const getmeta = async data => {
 	const _filter = data.filter(item => item.websiteName === 'jumia')[0]
-
+	console.log(_filter)
 	if (isEmpty(_filter) && !_filter.productLink) {
 		throw new Error('productlink is undefined ---getmeta function')
 	}
@@ -56,6 +76,18 @@ const getmeta = async data => {
 		const res = await axios.get(_filter.productLink)
 		return scrapMetadata(res.data)
 	} catch (error) {
-		throw new Error(error.message)
+		throw new Error(error.message + ' --getmeta')
+	}
+}
+
+const getPricestats = data => {
+	const prices = getPrices(data)
+	const highestPrice = getHigestPrice(prices)
+	const lowestPrice = getLowestPrice(prices)
+	const averagePrice = getAveragePrice(prices)
+	return {
+		highestPrice,
+		lowestPrice,
+		averagePrice,
 	}
 }

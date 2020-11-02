@@ -3,7 +3,7 @@ const uuidv4 = require('uuid').v4
 const { getActualPrice } = require('./server/formatPrice')
 const fs = require('fs')
 
-const scrapJumia = html => {
+exports.scrapJumia = html => {
 	const $ = cheerio.load(html)
 	const products = $('a[class=core]') || 'unable to get'
 	const jumiaProducts = []
@@ -41,7 +41,7 @@ const scrapJumia = html => {
 	return jumiaProducts
 }
 
-const scrapKonga = html => {
+exports.scrapKonga = html => {
 	const $ = cheerio.load(html)
 	const products = $('.a2cf5_2S5q5.cf5dc_3HhOq')
 	const kongaProducts = []
@@ -93,7 +93,7 @@ const scrapKonga = html => {
 /*****************************
  SLOT NG
  **********************************************/
-const scrapSlot = html => {
+exports.scrapSlot = html => {
 	const $ = cheerio.load(html)
 	const products = $('.product-inner')
 	const slotProducts = []
@@ -125,22 +125,19 @@ const scrapSlot = html => {
 }
 
 /*****************************
- FEMTECH IT  ************** not done yet !!!!!!!!
+ FEMTECH IT  ************** beta !!!!!!!!
  **********************************************/
-const scrapFemtech = html => {
+exports.scrapFemtech = html => {
 	const $ = cheerio.load(html)
-	const products = $('.product-inner')
+	const products = $('.product-item-container.cartinfo--center')
 	const femtechProducts = []
-
 	products.each(async function () {
-		const productName = $(this).find('.mf-product-content > h2').text()
-		const productLink = $(this).find('.mf-product-thumbnail > a ').attr('href')
+		const productName = $(this).find('.caption > h4').text()
+		const productLink = $(this).find('h4 > a').attr('href')
 
-		const price = $(this)
-			.find('.mf-product-price-box> .price > .woocommerce-Price-amount.amount')
-			.text()
+		const price = $(this).find('.price-new').text()
 		const productImage = $(this)
-			.find('.mf-product-thumbnail > a > img')
+			.find('.product-image-container img')
 			.attr('src')
 
 		femtechProducts.push({
@@ -150,7 +147,7 @@ const scrapFemtech = html => {
 			productLink,
 			productImage,
 			price,
-			actualPrice: await getActualPrice(price),
+			actualPrice: price ? await getActualPrice(price) : null,
 		})
 	})
 
@@ -161,7 +158,7 @@ const scrapFemtech = html => {
 /*****************************
  KARA NG
  **********************************************/
-const scrapKara = html => {
+exports.scrapKara = html => {
 	const $ = cheerio.load(html)
 	const products = $('.product-item-info')
 	const karaProducts = []
@@ -193,7 +190,7 @@ const scrapKara = html => {
 /*****************************
  EBAY STORE
  **********************************************/
-const scrapEbay = html => {
+exports.scrapEbay = html => {
 	const $ = cheerio.load(html)
 	const products = $('.s-item__wrapper')
 	const EbayProducts = []
@@ -233,31 +230,32 @@ const scrapEbay = html => {
 	// console.log(EbayProducts)
 	return EbayProducts
 }
-//  "id": "96",
-//          "name": "infinix note 8",
 
-const scrapMetadata = html => {
+exports.scrapMetadata = html => {
 	fs.writeFileSync('./test.html', html)
+	console.log('femtech reached')
 	const $ = cheerio.load(html)
 	const description = $('.markup.-mhm.-pvl.-oxa.-sc').text()
 	const stars = $('.stars._s._al').text()
 	const details = $('.-plxs.-fs14._more').text()
 	const name = $('.-fs20.-pts.-pbxs').text()
 	const brand = $('.-fs14.-pvxs > a').text()
+	const price = $('.-b.-ltr.-tal.-fs24').text()
 	return {
 		id: uuidv4(),
 		name,
 		description,
 		rating: { stars, details },
 		brand,
+		price,
 	}
 }
 
-module.exports = {
-	scrapJumia,
-	scrapKonga,
-	scrapEbay,
-	scrapSlot,
-	scrapKara,
-	scrapMetadata,
-}
+// module.exports = {
+// 	scrapJumia,
+// 	scrapKonga,
+// 	scrapEbay,
+// 	scrapSlot,
+// 	scrapKara,
+// 	scrapMetadata,
+// }

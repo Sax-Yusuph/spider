@@ -1,13 +1,14 @@
-const format_res = userRequest => {
+exports.format_res = userRequest => {
 	const { item, stores } = userRequest
-	if (!item) throw new Error('incorrect query params ---format.js')
+	const BASE_URL = 'https://aqueous-brushlands-22513.herokuapp.com'
+	if (!item) throw new Error('incorrect query params ---format.js --format_res')
 
 	if (stores === undefined || stores.length === 0) {
-		throw new Error('No stores defined')
+		throw new Error('No stores defined --format_res')
 	}
 
 	const urls = stores
-		.filter(url => url !== 'konga' && url !== 'aliExpress')
+		.filter(url => url !== 'konga' && url !== 'aliexpress')
 		.map(url => {
 			let queryString = item.replace(/\s/g, '+')
 			let storeUrl = ''
@@ -24,23 +25,23 @@ const format_res = userRequest => {
 				case 'ebay':
 					storeUrl = `https://www.ebay.com/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=${queryString}&_sacat=0`
 					break
+				case 'femtech':
+					storeUrl = `${BASE_URL}/https://femtechit.com/index.php?category_id=0&search=${queryString}&submit_search=&route=product%2Fsearch`
+					break
 			}
 			return storeUrl
 		})
 
 	const SPA_Urls = stores
-		.filter(
-			url =>
-				url !== 'jumia' && url !== 'kara' && url !== 'ebay' && url !== 'slot'
-		)
+		.filter(url => url === 'konga' || url === 'aliexpress')
 		.map(url => {
 			let SPAStoreUrl = ''
 			let queryString = userRequest.item.replace(/\s/g, '+')
 			switch (url) {
-				case 'AliExpress':
+				case 'aliexpress':
 					SPAStoreUrl = `https://www.aliexpress.com/wholesale?SearchText=${queryString}`
 					break
-				case 'Konga':
+				case 'konga':
 					queryString = userRequest.item.replace(/\s/g, '%20')
 					SPAStoreUrl = `https://www.konga.com/search?search=${queryString}`
 					break
@@ -54,4 +55,4 @@ const format_res = userRequest => {
 	}
 }
 
-module.exports = format_res
+// module.exports = format_res
