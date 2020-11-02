@@ -1,6 +1,6 @@
 node_modules
 bash.exe.stackdump
 *.html
-*.json
+# *.json
 *.css
 test
