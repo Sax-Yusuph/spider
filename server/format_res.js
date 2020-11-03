@@ -26,9 +26,10 @@ exports.format_res = userRequest => {
 					storeUrl = `https://www.ebay.com/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=${queryString}&_sacat=0`
 					break
 				case 'femtech':
-					storeUrl = `${BASE_URL}/https://femtechit.com/index.php?category_id=0&search=${queryString}&submit_search=&route=product%2Fsearch`
+					storeUrl = `https://femtechit.com/index.php?category_id=0&search=${queryString}&submit_search=&route=product%2Fsearch`
 					break
 			}
+			console.log(storeUrl)
 			return storeUrl
 		})
 

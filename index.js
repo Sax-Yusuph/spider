@@ -5,6 +5,9 @@ const {
 	getHigestPrice,
 	getLowestPrice,
 	getAveragePrice,
+	getPrices,
+	getDollarRate,
+	getActualPrice,
 } = require('./server/formatPrice')
 const { format_res } = require('./server/format_res')
 const { fetchData } = require('./server/get_store')
@@ -38,43 +41,44 @@ exports.crawler = (req, res) => {
 
 	Promise.all([...formattedURLs.urls.map(fetchData)])
 		.then(results => {
-			const trim = results.flat().filter(res => res.price !== '')
-			res.json(trim)
-			// if (trim) {
-			// 	console.log(trim)
-			// 	getmeta(trim).then(metadata => {
-			// 		// const priceStats = getPricestats(trim)
-			// 		const crawledRes = {
-			// 			...metadata,
-			// 			// priceStats,
-			// 			searchQuery: {
-			// 				...req.query,
-			// 				createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
-			// 			},
-			// 			items: shuffle(trim),
-			// 		}
-			// 		res.json(crawledRes)
-			// 	})
-			// } else {
-			// 	res.status(500).json({ error: 'something happened' })
-			// }
+			const trim = results.flat()
+			if (trim) {
+				appendPrices(trim).then(resp => {
+					// const priceStats = getPricestats(trim)
+					const crawledRes = {
+						// ...metadata,
+						// priceStats,
+						searchQuery: {
+							...req.query,
+							createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
+						},
+						items: shuffle(resp),
+					}
+					res.json(crawledRes)
+				})
+			} else {
+				res.status(500).json({ error: 'something happened' })
+			}
 		})
 		.catch(e => {
 			console.log(e.message + ' ---formattedURLs')
-			return e.message
+			res.status(500).json({ error: e.message })
 		})
 }
 
 const getmeta = async data => {
-	const _filter = data.filter(item => item.websiteName === 'jumia')[0]
-	console.log(_filter)
-	if (isEmpty(_filter) && !_filter.productLink) {
+	if (!data || data.length === 0) return
+	const _filter = data.find(
+		item => item.websiteName === 'jumia' && item.productLink !== ''
+	)
+	// console.log(_filter)
+	if (isEmpty(_filter) || !_filter.productLink) {
 		throw new Error('productlink is undefined ---getmeta function')
 	}
 
 	try {
-		const res = await axios.get(_filter.productLink)
-		return scrapMetadata(res.data)
+		const resp = await axios.get(_filter.productLink)
+		return scrapMetadata(resp.data)
 	} catch (error) {
 		throw new Error(error.message + ' --getmeta')
 	}
@@ -90,4 +94,18 @@ const getPricestats = data => {
 		lowestPrice,
 		averagePrice,
 	}
+}
+
+const appendPrices = async data => {
+	if (!data.length) return
+	const dollarRate = await getDollarRate()
+	console.log(dollarRate)
+	const refined = []
+	for (const item of data) {
+		if (item && item.price) {
+			actualPrice = getActualPrice(item.price, dollarRate)
+			refined.push({ ...item, actualPrice })
+		}
+	}
+	return refined
 }

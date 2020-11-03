@@ -33,7 +33,7 @@ exports.scrapJumia = html => {
 			officialBadge: official,
 			// oldPrice,
 			price,
-			actualPrice: await getActualPrice(price),
+			// actualPrice: await getActualPrice(price),
 		})
 	})
 
@@ -82,7 +82,7 @@ exports.scrapKonga = html => {
 			officialBadge: official,
 			// oldPrice,
 			price,
-			actualPrice: await getActualPrice(price),
+			// actualPrice: await getActualPrice(price),
 		})
 	})
 
@@ -116,7 +116,7 @@ exports.scrapSlot = html => {
 			productLink,
 			productImage,
 			price,
-			actualPrice: await getActualPrice(price),
+			// actualPrice: await getActualPrice(price),
 		})
 	})
 
@@ -131,7 +131,7 @@ exports.scrapFemtech = html => {
 	const $ = cheerio.load(html)
 	const products = $('.product-item-container.cartinfo--center')
 	const femtechProducts = []
-	products.each(async function () {
+	products.each(function () {
 		const productName = $(this).find('.caption > h4').text()
 		const productLink = $(this).find('h4 > a').attr('href')
 
@@ -147,7 +147,7 @@ exports.scrapFemtech = html => {
 			productLink,
 			productImage,
 			price,
-			actualPrice: price ? await getActualPrice(price) : null,
+			// actualPrice: price ? await getActualPrice(price) : null,
 		})
 	})
 
@@ -179,7 +179,7 @@ exports.scrapKara = html => {
 			productLink,
 			productImage,
 			price,
-			actualPrice: await getActualPrice(price),
+			// actualPrice: await getActualPrice(price),
 		})
 	})
 
@@ -223,7 +223,7 @@ exports.scrapEbay = html => {
 			shipping,
 			from: infoAlt,
 			price,
-			actualPrice: await getActualPrice(price),
+			// actualPrice: await getActualPrice(price),
 		})
 	})
 
@@ -232,21 +232,19 @@ exports.scrapEbay = html => {
 }
 
 exports.scrapMetadata = html => {
-	fs.writeFileSync('./test.html', html)
-	console.log('femtech reached')
 	const $ = cheerio.load(html)
 	const description = $('.markup.-mhm.-pvl.-oxa.-sc').text()
 	const stars = $('.stars._s._al').text()
 	const details = $('.-plxs.-fs14._more').text()
 	const name = $('.-fs20.-pts.-pbxs').text()
-	const brand = $('.-fs14.-pvxs > a').text()
+	const brandText = $('.-fs14.-pvxs').text()
 	const price = $('.-b.-ltr.-tal.-fs24').text()
 	return {
 		id: uuidv4(),
 		name,
 		description,
 		rating: { stars, details },
-		brand,
+		brand: brandText.split(':')[1].split('|')[0],
 		price,
 	}
 }
