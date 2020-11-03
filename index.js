@@ -39,25 +39,25 @@ exports.crawler = (req, res) => {
 	Promise.all([...formattedURLs.urls.map(fetchData)])
 		.then(results => {
 			const trim = results.flat().filter(res => res.price !== '')
-			res.json(trim)
-			// if (trim) {
-			// 	console.log(trim)
-			// 	getmeta(trim).then(metadata => {
-			// 		// const priceStats = getPricestats(trim)
-			// 		const crawledRes = {
-			// 			...metadata,
-			// 			// priceStats,
-			// 			searchQuery: {
-			// 				...req.query,
-			// 				createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
-			// 			},
-			// 			items: shuffle(trim),
-			// 		}
-			// 		res.json(crawledRes)
-			// 	})
-			// } else {
-			// 	res.status(500).json({ error: 'something happened' })
-			// }
+			// res.json(trim)
+			if (trim) {
+				console.log(trim)
+				getmeta(trim).then(metadata => {
+					// const priceStats = getPricestats(trim)
+					const crawledRes = {
+						...metadata,
+						// priceStats,
+						searchQuery: {
+							...req.query,
+							createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
+						},
+						items: shuffle(trim),
+					}
+					res.json(crawledRes)
+				})
+			} else {
+				res.status(500).json({ error: 'something happened' })
+			}
 		})
 		.catch(e => {
 			console.log(e.message + ' ---formattedURLs')
