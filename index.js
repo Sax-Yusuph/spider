@@ -43,18 +43,20 @@ exports.crawler = (req, res) => {
 		.then(results => {
 			const trim = results.flat()
 			if (trim) {
-				appendPrices(trim).then(resp => {
-					// const priceStats = getPricestats(trim)
-					const crawledRes = {
-						// ...metadata,
-						// priceStats,
-						searchQuery: {
-							...req.query,
-							createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
-						},
-						items: shuffle(resp),
-					}
-					res.json(crawledRes)
+				const priceStats = getPricestats(trim)
+				appendPrices(trim).then(products => {
+					getmeta(products).then(metadata => {
+						const crawledRes = {
+							...metadata,
+							priceStats,
+							searchQuery: {
+								...req.query,
+								createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
+							},
+							items: shuffle(products),
+						}
+						res.json(crawledRes)
+					})
 				})
 			} else {
 				res.status(500).json({ error: 'something happened' })
