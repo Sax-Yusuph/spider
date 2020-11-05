@@ -1,6 +1,7 @@
 const axios = require('axios')
 const moment = require('moment')
 const { scrapMetadata } = require('./scrapStore')
+const { productRef } = require('./server/firestoreConfig')
 const {
 	getHigestPrice,
 	getLowestPrice,
@@ -37,6 +38,7 @@ exports.crawler = async (req, res) => {
 		return res.json({ error: 'stores is undefined' })
 	} else {
 		_stores = stores.split(',')
+		_stores.push('jumia') // temporary fix
 	}
 
 	// format the urls to have an actual http url
@@ -46,46 +48,22 @@ exports.crawler = async (req, res) => {
 		const trim = rawResults.flat()
 		const appendedPrice = await appendPrices(trim)
 		const metadata = await getmeta(appendedPrice)
-		// const priceStats = getPricestats(trim)
-		console.log('------------------------------------')
-		// console.log(priceStats)
-		console.log('------------------------------------')
-		res.json({
+		const priceStats = getPricestats(appendedPrice)
+		const finalResults = {
 			...metadata,
+			priceStats,
 			searchQuery: {
 				...req.query,
 				createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
 			},
-			item: appendedPrice,
-		})
+			items: shuffle(appendedPrice),
+		}
+		await productRef.add(finalResults)
+		// send final results to client
+		res.json(finalResults)
 	} catch (error) {
-		res.json({ error: error.message })
+		res.status(500).json({ error: error.message })
 	}
-
-	// .then(results => {
-	// 	const trim = results.flat()
-	// 	if (trim) {
-	// 		appendPrices(trim).then(resp => {
-	// 			// const priceStats = getPricestats(trim)
-	// 			const crawledRes = {
-	// 				// ...metadata,
-	// 				// priceStats,
-	// 				searchQuery: {
-	// 					...req.query,
-	// 					createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
-	// 				},
-	// 				items: shuffle(resp),
-	// 			}
-	// 			res.json(crawledRes)
-	// 		})
-	// 	} else {
-	// 		res.status(500).json({ error: 'something happened' })
-	// 	}
-	// })
-	// .catch(e => {
-	// 	console.log(e.message + ' ---formattedURLs')
-	// 	res.status(500).json({ error: e.message })
-	// })
 }
 
 const getmeta = async data => {
@@ -106,16 +84,18 @@ const getmeta = async data => {
 	}
 }
 
-const getPricestats = data => {
+getPricestats = data => {
 	// data is an array of the scrapped products
 	const prices = getPrices(data)
-	const highestPrice = getHigestPrice(prices)
-	const lowestPrice = getLowestPrice(prices)
-	const averagePrice = getAveragePrice(prices)
-	return {
-		highestPrice,
-		lowestPrice,
-		averagePrice,
+	if (prices) {
+		const highestPrice = getHigestPrice(prices)
+		const lowestPrice = getLowestPrice(prices)
+		const averagePrice = getAveragePrice(prices)
+		return {
+			highestPrice,
+			lowestPrice,
+			averagePrice,
+		}
 	}
 }
 

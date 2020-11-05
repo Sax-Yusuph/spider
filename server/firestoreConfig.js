@@ -1,8 +1,9 @@
 const Firestore = require('@google-cloud/firestore')
 
 const PROJECTID = 'pricetrack-292909'
-const PRODUCT_COLLECTION = 'products'
-const PRICE_COLLECTION = 'products'
+const PRODUCT_COLLECTION = 'pricetrack-products'
+const PRICE_COLLECTION = 'currency-rate'
+
 const db = new Firestore({
 	projectId: PROJECTID,
 	timestampsInSnapshots: true,

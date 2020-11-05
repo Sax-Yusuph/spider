@@ -5,31 +5,26 @@ const PRICE_API = `http://data.fixer.io/api/latest?access_key=ee494e06bf479f7ce9
 //************************ Get Prices */
 exports.getPrices = data => {
 	if (!data && data.length) {
-		return console.log(
-			'something wrong with your data bro --formatPrice.js/getPrices'
-		)
+		console.log('something wrong with your data bro --formatPrice.js/getPrices')
+		return
 	}
 	return data.map(item => item.actualPrice && item.actualPrice.value)
 }
 
 //************************ Get Highest Price */
 exports.getHigestPrice = prices => {
-	if (!prices && prices.length === 0)
-		return console.log(
-			'something wrong with your data bro --formatPrice.js/getHighestPrice'
-		)
+	if (!prices && prices.length === 0) return
 	return prices.reduce((a, b) => Math.max(a, b))
 }
+
 //************************ Get Lowest Price */
 exports.getLowestPrice = prices => {
-	if (!prices && prices.length === 0)
-		return console.log(
-			'something wrong with your data bro --formatPrice.js/prices'
-		)
+	if (!prices && prices.length === 0) return
 	return prices.reduce((a, b) => Math.min(a, b))
 }
 //************************Get Average Price */
 exports.getAveragePrice = prices => {
+	if (!prices && prices.length === 0) return
 	const totalPrice = prices.reduce((a, b) => a + b)
 	const averagePrice = totalPrice / prices.length
 	return +averagePrice.toFixed(2)
