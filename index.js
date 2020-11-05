@@ -45,7 +45,7 @@ exports.crawler = async (req, res) => {
 	const formattedURLs = format_res({ item, stores: _stores })
 	try {
 		const rawResults = await Promise.all([...formattedURLs.urls.map(fetchData)])
-		const trim = rawResults.flat()
+		const trim = [].concat.apply([], rawResults)
 		const appendedPrice = await appendPrices(trim)
 		const metadata = await getmeta(appendedPrice)
 		const priceStats = getPricestats(appendedPrice)
