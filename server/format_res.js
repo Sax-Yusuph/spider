@@ -1,13 +1,15 @@
+const { onlyUnique } = require('./uniqueArray')
 exports.format_res = userRequest => {
 	const { item, stores } = userRequest
-	const BASE_URL = 'https://aqueous-brushlands-22513.herokuapp.com'
+	// const BASE_URL = 'https://aqueous-brushlands-22513.herokuapp.com'
 	if (!item) throw new Error('incorrect query params ---format.js --format_res')
 
 	if (stores === undefined || stores.length === 0) {
 		throw new Error('No stores defined --format_res')
 	}
-
-	const urls = stores
+	// make storeNames unique before fetching data
+	const uniqueStores = stores.filter(onlyUnique)
+	const urls = uniqueStores
 		.filter(url => url !== 'konga' && url !== 'aliexpress')
 		.map(url => {
 			let queryString = item.replace(/\s/g, '+')
@@ -26,9 +28,10 @@ exports.format_res = userRequest => {
 					storeUrl = `https://www.ebay.com/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=${queryString}&_sacat=0`
 					break
 				case 'femtech':
-					storeUrl = `${BASE_URL}/https://femtechit.com/index.php?category_id=0&search=${queryString}&submit_search=&route=product%2Fsearch`
+					storeUrl = `https://femtechit.com/index.php?category_id=0&search=${queryString}&submit_search=&route=product%2Fsearch`
 					break
 			}
+			console.log(storeUrl)
 			return storeUrl
 		})
 
