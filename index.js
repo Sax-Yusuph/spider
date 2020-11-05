@@ -24,48 +24,68 @@ const DEFAULT_STORES = [
 	'femtech',
 ]
 
-exports.crawler = (req, res) => {
+exports.crawler = async (req, res) => {
 	const { item, stores } = req.query
-	if (!item) return res.status(400).json({ error: 'no query specified' })
+	if (!item || !stores)
+		return res.status(400).json({ error: 'correct query not specified' })
 
 	let _stores
 	// check if the store query is 'all'
 	if (stores === 'all' && (typeof stores === 'string') | undefined) {
 		_stores = DEFAULT_STORES
+	} else if (stores === 'undefined') {
+		return res.json({ error: 'stores is undefined' })
 	} else {
 		_stores = stores.split(',')
 	}
 
 	// format the urls to have an actual http url
 	const formattedURLs = format_res({ item, stores: _stores })
+	try {
+		const rawResults = await Promise.all([...formattedURLs.urls.map(fetchData)])
+		const trim = rawResults.flat()
+		const appendedPrice = await appendPrices(trim)
+		const metadata = await getmeta(appendedPrice)
+		// const priceStats = getPricestats(trim)
+		console.log('------------------------------------')
+		// console.log(priceStats)
+		console.log('------------------------------------')
+		res.json({
+			...metadata,
+			searchQuery: {
+				...req.query,
+				createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
+			},
+			item: appendedPrice,
+		})
+	} catch (error) {
+		res.json({ error: error.message })
+	}
 
-	Promise.all([...formattedURLs.urls.map(fetchData)])
-		.then(results => {
-			const trim = results.flat()
-			if (trim) {
-				const priceStats = getPricestats(trim)
-				appendPrices(trim).then(products => {
-					getmeta(products).then(metadata => {
-						const crawledRes = {
-							...metadata,
-							priceStats,
-							searchQuery: {
-								...req.query,
-								createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
-							},
-							items: shuffle(products),
-						}
-						res.json(crawledRes)
-					})
-				})
-			} else {
-				res.status(500).json({ error: 'something happened' })
-			}
-		})
-		.catch(e => {
-			console.log(e.message + ' ---formattedURLs')
-			res.status(500).json({ error: e.message })
-		})
+	// .then(results => {
+	// 	const trim = results.flat()
+	// 	if (trim) {
+	// 		appendPrices(trim).then(resp => {
+	// 			// const priceStats = getPricestats(trim)
+	// 			const crawledRes = {
+	// 				// ...metadata,
+	// 				// priceStats,
+	// 				searchQuery: {
+	// 					...req.query,
+	// 					createdAt: moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
+	// 				},
+	// 				items: shuffle(resp),
+	// 			}
+	// 			res.json(crawledRes)
+	// 		})
+	// 	} else {
+	// 		res.status(500).json({ error: 'something happened' })
+	// 	}
+	// })
+	// .catch(e => {
+	// 	console.log(e.message + ' ---formattedURLs')
+	// 	res.status(500).json({ error: e.message })
+	// })
 }
 
 const getmeta = async data => {
@@ -87,6 +107,7 @@ const getmeta = async data => {
 }
 
 const getPricestats = data => {
+	// data is an array of the scrapped products
 	const prices = getPrices(data)
 	const highestPrice = getHigestPrice(prices)
 	const lowestPrice = getLowestPrice(prices)
@@ -101,7 +122,7 @@ const getPricestats = data => {
 const appendPrices = async data => {
 	if (!data.length) return
 	const dollarRate = await getDollarRate()
-	console.log(dollarRate)
+	// console.log(dollarRate)
 	const refined = []
 	for (const item of data) {
 		if (item && item.price) {

@@ -4,10 +4,11 @@ const PRICE_API = `http://data.fixer.io/api/latest?access_key=ee494e06bf479f7ce9
 
 //************************ Get Prices */
 exports.getPrices = data => {
-	if (!data && data.length === 0)
+	if (!data && data.length) {
 		return console.log(
 			'something wrong with your data bro --formatPrice.js/getPrices'
 		)
+	}
 	return data.map(item => item.actualPrice && item.actualPrice.value)
 }
 
