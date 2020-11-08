@@ -61,7 +61,7 @@ exports.getActualPrice = (price, dollarRate) => {
 		}
 	} catch (error) {
 		console.log(error.message + '---getActualPrice')
-		throw new Error(error.message + '---getActualPrice')
+		return { error: error.message + '---getActualPrice' }
 	}
 }
 
@@ -86,7 +86,7 @@ exports.getDollarRate = async () => {
 		return cr
 	} catch (error) {
 		console.log(error.message + ' --getDollarRate')
-		return error.message
+		return { error: error.message }
 	}
 }
 

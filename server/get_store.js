@@ -34,6 +34,6 @@ exports.fetchData = URL => {
 			}
 		})
 		.catch(function (error) {
-			return error.message + '---fetchData'
+			return { error: error.message + '---fetchData' }
 		})
 }

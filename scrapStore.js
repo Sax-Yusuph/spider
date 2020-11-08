@@ -240,7 +240,7 @@ exports.scrapMetadata = html => {
 	const brandText = $('.-fs14.-pvxs').text()
 	const price = $('.-b.-ltr.-tal.-fs24').text()
 	return {
-		id: uuidv4(),
+		// id: uuidv4(),
 		name,
 		description,
 		rating: { stars, details },

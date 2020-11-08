@@ -31,7 +31,7 @@ exports.format_res = userRequest => {
 					storeUrl = `https://femtechit.com/index.php?category_id=0&search=${queryString}&submit_search=&route=product%2Fsearch`
 					break
 			}
-			console.log(storeUrl)
+			// console.log(storeUrl)
 			return storeUrl
 		})
 
