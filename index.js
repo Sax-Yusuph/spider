@@ -92,17 +92,21 @@ exports.crawler = async (req, res) => {
 // 1
 
 const getmeta = async data => {
-	if (!data || data.length === 0) return
-	const _filter = data.find(
-		item => item.websiteName === 'jumia' && item.productLink !== ''
+	if (typeof data === 'undefined' || data.length === 0) return
+	const _filter = data.filter(
+		item =>
+			typeof item !== 'undefined' &&
+			item.websiteName === 'jumia' &&
+			item.productLink
 	)
-	// console.log(_filter)
-	if (isEmpty(_filter) || !_filter.productLink) {
+	// console.log(_filter[0])
+	if (typeof _filter[4] === 'undefined' && !_filter[4].productLink) {
 		throw new Error('productlink is undefined ---getmeta function')
 	}
-
+	console.log(_filter[4].productLink)
+	// pick the (4th + 1) item for strong consistency and scrap the result
 	try {
-		const resp = await axios.get(_filter.productLink)
+		const resp = await axios.get(_filter[4].productLink)
 		return scrapMetadata(resp.data)
 	} catch (error) {
 		throw new Error(error.message + ' --getmeta')

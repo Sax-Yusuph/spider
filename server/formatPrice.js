@@ -13,14 +13,16 @@ exports.getPrices = data => {
 
 //************************ Get Highest Price */
 exports.getHigestPrice = prices => {
-	if (!prices && prices.length === 0) return
-	return prices.reduce((a, b) => Math.max(a, b))
+	const _prices = prices.filter(price => typeof price !== 'undefined')
+	if (_prices.length === 0) return
+	return _prices.reduce((a, b) => Math.max(a, b))
 }
 
 //************************ Get Lowest Price */
 exports.getLowestPrice = prices => {
-	if (!prices && prices.length === 0) return
-	return prices.reduce((a, b) => Math.min(a, b))
+	const _prices = prices.filter(price => typeof price !== 'undefined')
+	if (_prices.length === 0) return
+	return _prices.reduce((a, b) => Math.min(a, b))
 }
 //************************Get Average Price */
 exports.getAveragePrice = prices => {
@@ -33,7 +35,7 @@ exports.getAveragePrice = prices => {
 //************************ change Price String to Number */
 
 exports.getActualPrice = (price, dollarRate) => {
-	if (!price && price === 'undefined') return { error: 'price not provided' }
+	if (typeof price === 'undefined') return { error: 'price not provided' }
 	try {
 		const str = price.split('-')[0].split('.')[0].match(/\d+/g)
 		if (str && price.includes('₦')) {

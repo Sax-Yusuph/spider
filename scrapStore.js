@@ -11,14 +11,12 @@ exports.scrapJumia = html => {
 	products.each(async function () {
 		const productName = $(this).find('.info > .name').text()
 		const productLink = $(this).attr('href')
-		const productStore =
-			$(this).find('.shop-logo > span').text() || 'not provided'
+		const productStore = $(this).find('.shop-logo > span').text() || ''
 
 		// const oldPrice = $(this).find('.info > .s-prc-w > .old').text()
 		const price = $(this).find('.info > .prc').text()
 
-		const official =
-			$(this).find('.top-badge > img').attr('src') || 'not provided'
+		const official = $(this).find('.top-badge > img').attr('src') || ''
 		const info = $(this).find('.info > .tag').text()
 		const productImage = $(this).find('.img-c > img').attr('data-src')
 
@@ -52,16 +50,14 @@ exports.scrapKonga = html => {
 			.text()
 		const productLink = $(this).find('._4941f_1HCZm > a ').attr('href')
 		const productStore =
-			$(this).find('._4941f_1HCZm > form > ._7cc7b_23GsY').text() ||
-			'not provided'
+			$(this).find('._4941f_1HCZm > form > ._7cc7b_23GsY').text() || ''
 
 		const oldPrice = $(this).find('._4e81a_39Ehs > .f6eb3_1MyTu').text()
 
 		// DO THIS LATER
 		const price = $(this).find('._4e81a_39Ehs > .d7c0f_sJAqi').text()
 
-		const official =
-			$(this).find('.top-badge > img').attr('src') || 'not provided'
+		const official = $(this).find('.top-badge > img').attr('src') || ''
 		const info = $(this).find('._4941f_1HCZm > form > ._09e22_1ojNd').text()
 		const infoAlt = $(this).find('._4941f_1HCZm > form > ._7c514_GMwE8').text()
 		const productImage = $(this)
@@ -239,13 +235,15 @@ exports.scrapMetadata = html => {
 	const name = $('.-fs20.-pts.-pbxs').text()
 	const brandText = $('.-fs14.-pvxs').text()
 	const price = $('.-b.-ltr.-tal.-fs24').text()
+	const img = $('.-fw.-fh').data()
 	return {
 		// id: uuidv4(),
 		name,
 		description,
 		rating: { stars, details },
-		brand: brandText.split(':')[1].split('|')[0],
+		brand: splitBrand(brandText),
 		price,
+		img: typeof img !== 'undefined' ? img.src : '',
 	}
 }
 
@@ -257,3 +255,17 @@ exports.scrapMetadata = html => {
 // 	scrapKara,
 // 	scrapMetadata,
 // }
+
+const splitBrand = brandText => {
+	if (brandText) {
+		const firstSplit = brandText.includes(':')
+			? brandText.split(':')[1]
+			: brandText
+		const secondSplit = firstSplit.includes('|')
+			? firstSplit.split('|')[0]
+			: firstSplit
+		return secondSplit
+	} else {
+		return ''
+	}
+}
